@@ -1,0 +1,215 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Apache_Hive_logo.svg/1200px-Apache_Hive_logo.svg.png">
+    <title>Apache Hive Search</title>
+    <style>
+        body{
+            font-family: 'IBM Plex Sans Thai Looped', sans-serif;
+        }
+        .mytable {
+            overflow-x: scroll;
+            overflow-y: scroll;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 5px;
+        }
+
+        .grid-item {
+            margin: 1px 1px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .copyright{
+                display: none;
+            }
+        }
+    
+    </style>
+    
+</head>
+
+<body>
+    <nav class="navbar navbar-default">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Apache_Hive_logo.svg/1138px-Apache_Hive_logo.svg.png"
+            style="margin-left: 10px;margin-top: 5px;margin-bottom: 5px;" width="50">
+        <a href="#!" class="text-success" style="text-decoration: none;pointer-events: none;"><strong>Apache Hive
+                Search</strong></a>
+        <button onclick="document.getElementById('id01').style.display='block'" class="btn btn-default">
+            <span class="glyphicon glyphicon-link" aria-hidden="true"></span> Connection</button>
+        <p class="navbar-text navbar-right copyright" style="margin-right: 10px;">⚒️ Develope by pasit.dev</p>
+    </nav>
+    <div class="container">
+        <div class="alert alert-info" role="alert">
+            <p><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Operation</p>
+            <div class="btn-group btn-group-xs" role="group">
+                <button type="button" class="btn btn-default select" style="margin-right: 5px;">SELECT</button>
+                <button type="button" class="btn btn-default where" style="margin-right: 5px;">WHERE</button>
+                <button type="button" class="btn btn-default limit" style="margin-right: 5px;">LIMIT</button>
+            </div>
+        </div>
+        <div class="alert alert-warning" role="alert">
+            <p id="hidetable"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Table List</p>
+            <div class="grid-container" style="margin-top: 10px;">
+                {% for sc in data[3] %}
+                <div class="grid-item">
+                    <div class="btn-group btn-group-xs" role="group">
+                        <button type="button" class="btn btn-default grouptable"
+                            style="margin-right: 5px;">{{sc['data']}}</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <form action="{{url_for('query')}}" method="POST" id="form1">
+            <textarea id="txtsql" name="txtsql" class="form-control" rows="3" placeholder="SQL Statement"></textarea>
+            <p></p>
+            <button class="btn btn-default cmdquery" style="width: 150px" type="submit" name="action">
+                <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> Submit</button>
+            <a href="{{url_for('main')}}" class="btn btn-default cmdreload">
+                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Reload</a>
+            <hr>
+            {% if data[0] %}
+            <div class="container mytable table-responsive" style="overflow-x: scroll;">
+                <table class="table table-bordered table-striped table-condensed" id="showData">
+                    <thead>
+                        <tr class="active">
+                            {% for i,v in data[1].items() %}
+                            <td style="font-weight: bold;">{{i.split(".")[1]}}</td>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in data[0] %}
+                        <tr>
+                            {% for i,x in v.items() %}
+                            <td class="text-nowrap">{{x}}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+    </div>
+    </form>
+    </div>
+    {% if data[4] %}
+    <div id="id01" class="w3-modal">
+        <div class="w3-modal-content">
+          <div class="w3-container">
+            <span onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+            <div style="margin-top: 10px;"><span class="badge badge-default">Connection Configuration</span></div><br>
+            <form action="{{url_for('config')}}" method="post" id="config_form">
+                <div class="input-group">
+                    <span class="input-group-addon" id="sizing-addon2">IP Address</span>
+                    <input type="text" class="form-control" name="ipaddress" placeholder="Username" value="{{data[4][1]}}" required>
+                </div>
+                <br>
+                <div class="input-group">
+                    <span class="input-group-addon" id="sizing-addon2">Port</span>
+                    <input type="text" class="form-control" name="port" placeholder="Username" value="{{data[4][2]}}" required>
+                </div>
+                <br>
+                <div class="input-group">
+                    <span class="input-group-addon" id="sizing-addon2">Username</span>
+                    <input type="text" class="form-control" placeholder="Username" name="username" value="{{data[4][3]}}" required>
+                </div>
+                <br>
+                <div class="input-group">
+                    <span class="input-group-addon" id="sizing-addon2">Database</span>
+                    <input type="text" class="form-control" placeholder="Username" name="database" value="{{data[4][4]}}" required>
+                </div>
+                <br>
+                <button type="submit" class="btn btn-default cmdconfig" name="btnsave">
+                    <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> Submit
+                </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    <script>
+        $(document).ready(function () {
+            if ($("#txtsql").val().length == 0) {
+                $("#txtsql").val(localStorage.getItem("sql"));
+            }
+            $('#showData').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copyHtml5',
+                    'csvHtml5',
+                    {
+                        extend: 'print',
+                        messageTop: 'Hive query result'
+                    }
+                ]
+            });
+            $(".select").click(function () {
+                $("#txtsql").val($(this).html() + ' * ');
+                $("#txtsql").focus();
+            });
+            $(".limit").click(function () {
+                $("#txtsql").val($("#txtsql").val() + ' ' + $(this).html() + ' 10');
+                $("#txtsql").focus();
+            });
+            $(".where").click(function () {
+                $("#txtsql").val($("#txtsql").val() + ' ' + $(this).html() + ' ');
+                $("#txtsql").focus();
+            });
+            $(".grouptable").each(function () {
+                $(this).click(function () {
+                    $("#txtsql").val($("#txtsql").val() + ' FROM ' + $(this).html() + ' ');
+                    $("#txtsql").focus();
+                });
+            });
+
+            $("#form1").submit(function () {
+                if ($("#txtsql").val().length == 0) {
+                    alert("Empty SQL Command!");
+                    $("#txtsql").focus();
+                    return false;
+                }
+                $(".cmdquery").prop("disabled", true);
+                localStorage.setItem("sql", $("#txtsql").val());
+                $(".cmdquery").html("Wait ...");
+            });
+            $("#hidetable").click(function(){
+                $(".grid-container").hide();
+            });
+            $(".cmdreload").click(function(){
+                $(this).prop("disabled", true);
+                $(this).html("Wait ...");
+            });
+            $("#config_form").submit(function () {
+
+                $(".cmdconfig").prop("disabled", true);
+                $(".cmdconfig").val("Wait ...");
+            });
+        });
+    </script>
+</body>
+
+</html>

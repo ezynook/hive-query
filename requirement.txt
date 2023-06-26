@@ -1,0 +1,8 @@
+Flask
+pandas
+pyhive
+thrift
+thrift-sasl
+db-sqlite3
+configparser
+sasl
